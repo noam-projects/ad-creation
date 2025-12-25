@@ -1,6 +1,6 @@
 import OpenAI from 'openai';
 
-// Initialize with environment variable
+// Verification: Git Sync Test - Hook & Sync Refinements Active
 // Note: Client should only be initialized on server side
 
 export interface AdSegment {
