@@ -1,5 +1,7 @@
 import { db } from '@/lib/db';
 
+// LOCAL SYNC TEST: This change should appear in GitHub Desktop "Changes" tab.
+
 export interface Project {
     id: string;
     name: string;
