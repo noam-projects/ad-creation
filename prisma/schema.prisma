@@ -1,0 +1,42 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider      = "node c:/Users/noam/.gemini/antigravity/scratch/ad-creation/node_modules/@prisma/client/generator-build/index.js"
+  binaryTargets = ["native", "windows"]
+  output        = "c:/Users/noam/.gemini/antigravity/scratch/ad-creation/node_modules/.prisma/client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Project {
+  id           String   @id @default(cuid())
+  name         String
+  masterPrompt String   @db.Text
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("Project")
+}
+
+model Settings {
+  id              String   @id @default(cuid())
+  openaiKey       String?
+  geminiKey       String?
+  elevenLabsKey   String?
+  pexelsKey       String?   // New: For stock footage
+  useGpu          Boolean  @default(false) // New: Enable hardware acceleration
+  isConfigured    Boolean  @default(false)
+  
+  // Singleton pattern: we'll only ever have one row usually, 
+  // or we can scope by user later if needed.
+  updatedAt       DateTime @updatedAt
+
+  @@map("Settings")
+}

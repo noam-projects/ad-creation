@@ -1,0 +1,64 @@
+import OpenAI from 'openai';
+
+// Initialize with environment variable
+// Note: Client should only be initialized on server side
+
+export interface AdSegment {
+    text: string;
+    visualKeywords: string;
+    estimatedDuration: number;
+}
+
+export interface AdContent {
+    theme: string;
+    segments: AdSegment[];
+}
+
+export async function generateAdContent(masterPrompt: string, dateContext: string, apiKey: string): Promise<AdContent> {
+    if (!apiKey) throw new Error("Missing OpenAI API Key");
+
+    const openai = new OpenAI({ apiKey });
+
+    const systemPrompt = `You are a creative director for high-performing video ads.
+    Your goal is to generate a short, engaging video ad broken into segments (scenes).
+    
+    The ad is for a specific date: ${dateContext}.
+    
+    Output structured JSON:
+    {
+        "theme": "Brief theme description (e.g. 'Energetic Tech')",
+        "segments": [
+            {
+                "text": "Script for this specific scene (max 300 chars, ~2 sentences)",
+                "visualKeywords": "Search terms for stock video (e.g. 'happy diverse office team working')",
+                "estimatedDuration": 3 (seconds)
+            }
+        ]
+    }
+    
+    Guidelines:
+    - Create 3-5 segments.
+    - Total duration should be 15-30 seconds.
+    - visualKeywords must be descriptive for a stock footage search (Pexels).
+    - VISUAL RULE: Use broad, professional, or abstract concepts (e.g. "business growth", "financial freedom sky", "tech network").
+    - VISUAL RULE: Avoid specific daily life actions (e.g. "shopping", "eating", "laundry") unless the script demands it.
+    - COMPLIANCE VISUAL RULE: Do NOT use graphs, charts, trading screens, or candlesticks. Use "lifestyle freedom" or "abstract" instead.
+    - Do NOT start the script by stating the date (e.g. "It is December 25th").
+    - Start with a strong hook related to the Master Prompt.
+    - Use the date context subtly if relevant (e.g. seasonal reference), but prioritize the topic.
+    `;
+
+    const completion = await openai.chat.completions.create({
+        model: "gpt-5.2", // User requested specifically
+        messages: [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: `Master Prompt: ${masterPrompt}` }
+        ],
+        response_format: { type: "json_object" }
+    });
+
+    const content = completion.choices[0].message.content;
+    if (!content) throw new Error("Failed to generate content from OpenAI");
+
+    return JSON.parse(content) as AdContent;
+}

@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  ad-engine:
+    build: .
+    container_name: ad-engine
+    restart: always # Auto-restart if it crashes or server reboots
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    volumes:
+      - ./public:/app/public # Persist generated videos/logs if needed
